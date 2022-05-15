@@ -1,0 +1,100 @@
+
+.description {
+    width: 100%;
+    height: 300px;
+    /* border: 2px pink solid; */
+    margin-top: 60px;
+    color: rgba(255, 255, 255, 1.0);
+    font-family: Arial, Helvetica, sans-serif;
+    padding-top: 40px;
+    padding-left: 50px;
+    box-sizing: border-box;
+}
+.description p:first-child {
+    font-size: 46px;
+    font-weight: 600;
+}
+.description p:nth-child(2){
+    font-size: 30px;
+    font-weight: 500;
+}
+.description p:nth-child(3){
+    font-size: 20px;
+    font-weight: 300;
+    margin-top: 20px ;
+}
+/* There are styles for main button */
+.about-btn {
+    margin-top: 250px;
+}
+.about-view {
+    border: 1px solid #fff;
+    background: rgba(16, 16, 16, 0.59);
+    text-decoration: none;
+    color: #fff;
+    font-size: 15px;
+    letter-spacing: 1px;
+    padding: 12px 30px;
+    transition: 0.5s all;
+    -webkit-transition: 0.5s all;
+    -moz-transition: 0.5s all;
+    -o-transition: 0.5s all;
+    -ms-transition: 0.5s all;
+    width: 150px;
+    margin:0 auto;
+    text-align: center;
+}
+.about-view:hover {
+    background: rgba(0, 0, 0, 0.7);
+    box-shadow: 5px 5px 16px 3px rgba(0, 0, 0, 0.7);
+    cursor: pointer;
+}
+
+/* 联系和关于的页面核心样式样式 */
+.center-black {
+    width: 100%;
+    height: 400px;
+    background-color: rgba(0, 0, 0, 0.2);
+    margin-top: 200px;
+    position: absolute;
+    z-index: 1;
+}
+.container.other-area {
+    /* 由于联系和关于的页面样式与首页不一样，则需要引入新样式来覆盖 */
+    margin-top: 130px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 20px;
+    min-height: 400px;
+}
+.container.other-area > * {
+    float: left;
+    z-index: 2;
+    position: relative;
+}
+.steamer {
+    width: 50%;
+}
+.subtitle {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: 50px;
+    text-align: center;
+    position: relative;
+    top: -40px;
+}
+.sub-content {
+    color: black;
+    width: 42%;
+    margin-left: 7%;
+    padding-top: 20px;
+}
+.sub-content p {
+    margin: 8px 0;
+}
+.sub-content a {
+    text-decoration: none;
+    color: #ce9178;
+}
+.sub-desp {
+    font-size: 20px;
+}

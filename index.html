@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitor_Steamer_Ticket</title>
+    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" href="static/css/base.css">
+    <link rel="stylesheet" href="static/css/navbar.css">
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css" />
+    <style>
+        body {
+            background-image: url(static/images/bg-image.jpg);
+            /* Background image is centered vertically and horizontally */
+            background-position: center center;
+            /* Background no-repeat */
+            background-repeat: no-repeat;
+            /* When the content height is greater than the image height, the position of the background image is fixed  */
+            background-attachment: fixed;
+            /* Make the background image scale based on the container size */
+            background-size: cover;
+        }
+
+        .my-form {
+            z-index: 100;
+            position: fixed;
+            padding: 50px;
+            left: 0;
+            right: 0;
+            top: 60px;
+            bottom: 0;
+            margin: auto;
+            width: 450px;
+            height: 230px;
+            background-color: #FFFFFF;
+            box-shadow: 5px 5px 10px rgb(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- This is navigation bar -->
+    <nav class="navigation">
+        <div class="navigation-center">
+            <div class="navbar-brand">
+                <a href="../index.html">Monitor-Jing</a>
+            </div>
+            <div class="navbar-menu">
+                <ul>
+                    <li>
+                        <a href="./index.html" class="choose">Home</a>
+                    </li>
+                    <li>
+                        <a href="./about.html">About</a>
+                    </li>
+                    <li>
+                        <a href="./contact.html">Contact</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- This div is the most biggest div on the page, it contains all of the divs -->
+    <div class="container" id="vue-container">
+        <!-- This is the description of the website, it is located in the middle of the page. -->
+        <div class="description">
+            <p>
+                Monitor the Steamer Tickets
+            </p>
+            <p>
+                From Shekou...
+            </p>
+            <p>
+                Did you ever miss the release of tickets for Shekou Terminal? <br>
+                You can use this website to montior the information of the tickets. <br>
+                It is quite simple, click the button below, <br> <br>
+                Let's do it!
+            </p>
+
+        </div>
+        <!-- This is main button of the page, it will popup another window -->
+        <div class="about-btn">
+            <div class="about-view" @click="showForm">Explore More</div>
+        </div>
+        <!-- https://segmentfault.com/a/1190000014366951?utm_source=sf-similar-article -->
+        <div class="my-form" v-show="isShow" style="display: none;" @change="changeArrName" ref="scale">
+            <!-- This part contains several fields and two buttons. -->
+            <el-form :model="formData" :rules="formRule" ref="formDataRef" label-width="130px">
+                <el-form-item label="Departure Port">
+                    <el-input v-model="formData.departname" disabled placeholder='Departure Port' style="width: 50px;"/>
+                </el-form-item>
+                <el-form-item label="Arrival Port" prop="arrname">
+                    <el-select v-model="formData.arrname" placeholder="Arrival Port" @change="changeArrName">
+                        <el-option v-for="item in arrlist" :label="item.label" :value="item.value" :key="item.value"/>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="Departure Date" prop="date1">
+                    <el-col :span="11">
+                        <el-date-picker v-model="formData.date1" type="date" placeholder="Pick a date" style="width: 311.66px;"/>
+                    </el-col>
+                    <el-col :span="2" class="text-center" style="text-align: center" v-show="isShowRung">
+                        <span class="text-gray-500">-</span>
+                    </el-col>
+                    <el-col :span="11" v-show="isShowPickTime">
+                        <el-time-picker v-model="formData.date2" placeholder="Pick a time" style="width: 100%" format="HH:mm"/>
+                    </el-col>
+                </el-form-item>
+                <el-form-item label="Airlines" v-show="isShowAirLines" prop="airname">
+                    <el-select v-model="formData.airname" placeholder="Airlines" style="width: 311.66px;">
+                        <el-option v-for="item in airlist" :label="item.label" :value="item.value" :key="item.value"/>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="Flight number" prop="flightnum" v-show="isShowFlightNumber">
+                    <el-input v-model="formData.flightnum" placeholder="Please input flight number, such as AB123"  style="width: 311.66px;"/>
+                </el-form-item>
+                <el-form-item label="Email Address" prop="emailaddress">
+                    <el-input v-model="formData.emailaddress" placeholder='Please input your email address' style="width: 311.66px;"/>
+
+                </el-form-item> 
+            </el-form>
+            <div style="margin: 0 auto; padding: 0 30%; box-sizing: border-box;" ref="buttons">
+                <el-button type="primary" @click="onSubmit" style="float: left" v-loading.fullscreen.lock="fullscreenLoading">Submit</el-button>
+                <el-button @click="cancelSubmit" style="float: right">Cancel</el-button>
+            </div>
+        </div>
+    </div>
+
+    <!-- import vue3 https://cdn.jsdelivr.net/npm/vue@3.2.33/dist/   -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.2.33/dist/vue.global.js"></script>
+    <!-- import element ui -->
+    <script src="https://unpkg.com/element-plus"></script>
+    <script>
+        const { reactive, ref } = Vue;
+
+        const el_Main = {
+            data() {
+                return {
+                    isShow: ref(false),
+                    isShowAirLines: ref(false),  // Hide AirLines by default
+                    isShowFlightNumber: ref(false),  // Hide Flight number by default
+                    isShowRung: ref(false),  // Hide the short line between Time
+                    isShowPickTime: ref(false),  // Hide Pick Time by default
+                    arrlist: ref([
+                        { label: "澳门凼仔", value: "MAC" },
+                        { label: "东澳岛", value: "DAD" },
+                        { label: "外伶仃岛", value: "WLD" },
+                        { label: "中山港", value: "ZSA" },
+                        { label: "珠海横琴（长隆）", value: "HQP" },
+                        { label: "桂山岛", value: "GS" },
+                        { label: "珠海九洲", value: "ZH" },
+                        { label: "澳门外港", value: "MMF" },
+                        { label: "香港机场", value: "HKA" },
+                        { label: "香港港澳", value: "HKM" },
+                    ]
+                    ),
+                    airlist: ref([
+                        { label: "加拿大航空", value: "AC" },
+                        { label: "法国航空", value: "AF" },
+                        { label: "全日空日本航空", value: "NQ" },
+                        { label: "全日空航空", value: "NH" },
+                        { label: "韩亚航空", value: "OZ" },
+                        { label: "国泰航空", value: "CX" },
+                        { label: "中华航空", value: "CI" },
+                        { label: "阿联酋航空", value: "EK" },
+                        { label: "埃塞俄比亚航空", value: "ET" },
+                        { label: "长荣航空", value: "BR" },
+                        { label: "香港航空", value: "HX" },
+                        { label: "香港快运航空", value: "UO" },
+                        { label: "日本航空", value: "JL" },
+                        { label: "荷兰航空", value: "KL" },
+                        { label: "华信航空", value: "AE" },
+                        { label: "卡塔尔航空", value: "QR" },
+                        { label: "新加坡航空", value: "SQ" },
+                        { label: "土耳其航空", value: "TK" },
+                        { label: "韩国德威航空", value: "TW" },
+                        { label: "维珍航空", value: "VS" },
+
+                    ]),
+
+                    formData: {
+                        departname: '蛇口',
+                        arrname: '',
+                        date1: '',
+                        date2: '',
+                        airname: '',
+                        flightnum: '',
+                        emailaddress: ''
+                    },
+                    formRule: {
+                        arrname: [
+                            { required: true, message: 'Cannot be empty, please select Arrival Port.', trigger: 'blur' },
+                        ],
+                        date1: [
+                            { required: true, message: 'Cannot be empty, please select Departure Date.', trigger: 'blur' },
+                        ],
+                        airname: [
+                            { required: true, validator: this.checkField, trigger: 'blur' },
+                        ],
+                        flightnum: [
+                            { required: true, validator: this.checkField, trigger: 'blur'},
+                            // { required: true, message: 'Please input flight num', trigger: 'blur' },
+                            { pattern: /^[A-Z]{2}\d+$/, message: 'Please input correct flight number', trigger: 'blur' }
+                        ],
+                        emailaddress: [
+                            { required: true, message: 'Cannot be empty, please input your email address', trigger: 'blur' },
+                            { pattern: /^[A-Za-z0-9-._]+@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,6})$/, message: 'Please input correct email address', trigger: 'blur' }
+                        ],
+                    },
+                    fullscreenLoading: ref(false),
+                    isLoadingShow: ref(false)
+                }
+            },
+            methods: {
+                checkField: function (rule, value, callback) {
+                    console.log('rule:', rule);
+                    if (this.formData.arrname === 'HKA') {
+                        /* If Arrival Port is Hongkong Airport，then start to next rule. */
+                        if (value.length === 0) {
+                            if (rule.field === "flightnum"){
+                                callback('Please input Flight number');
+                            } else if (rule.field === "airname") {
+                                callback('Please input Airline name');
+                            }
+                            
+                        } else {
+                            callback()
+                        }
+                    } else {
+                        callback()
+                    }
+                },
+                changeArrName: function () {
+                    /* If Arrival Port is Hongkong Airport，then show some related fields */
+                    if (this.formData.arrname === 'HKA') {
+                        this.isShowAirLines = true;
+                        this.isShowFlightNumber = true;
+                        this.isShowRung = true;
+                        this.isShowPickTime = true;
+                        this.$refs.scale.style.height = "350px";
+                        this.$refs.scale.style.width = "800px";
+                        this.$refs.buttons.style.paddingLeft = "35%";
+                        this.$refs.buttons.style.paddingRight = "35%";
+                    } else {
+                        this.isShowAirLines = false;
+                        this.isShowFlightNumber = false;
+                        this.isShowRung = false;
+                        this.isShowPickTime = false;
+                        this.$refs.scale.style.height = "230px";
+                        this.$refs.scale.style.width = "450px";
+                        this.$refs.buttons.style.paddingLeft = "30%";
+                        this.$refs.buttons.style.paddingRight = "30%";
+                    }
+                },
+                showForm: function () {
+                    // Open form
+                    this.isShow = true;
+                },
+                onSubmit() {
+                    this.fullscreenLoading = true;
+                    this.$refs['formDataRef'].validate((valid) => {
+                        setTimeout( () => {
+                        this.fullscreenLoading = false;
+                        }, 500);
+                        console.log('valid', valid);
+                        if (valid) {
+                            alert('Success');
+                        }
+                    })
+                    
+                   
+                },
+                cancelSubmit: function () {
+                    this.$refs['formDataRef'].resetFields();
+                    // Close form
+                    this.isShow = false;
+                }
+            }
+        };
+        const el_app = Vue.createApp(el_Main);
+        el_app.use(ElementPlus);
+        const el_vm = el_app.mount("#vue-container");
+
+    </script>
+</body>
+
+</html>
