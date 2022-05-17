@@ -98,3 +98,7 @@
 .sub-desp {
     font-size: 20px;
 }
+.tooltip {
+    height: 16px;
+    width: 16px;
+}
